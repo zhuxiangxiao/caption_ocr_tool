@@ -92,6 +92,11 @@
             <artifactId>opencv</artifactId>
             <version>4.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>11.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -115,6 +120,21 @@
                                 <versionCode>${app.versionCode}</versionCode>
                             </additionalProperties>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>com.neo.caption.ocr.CaptionOCR</mainClass> <!--程序入口-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.neo.caption.ocr.constant.PrefKey.MODULE_PROFILE_STATUS_LIST;
@@ -60,8 +61,8 @@ public class OpenCVServiceImpl implements OpenCVService {
 
     @PostConstruct
     public void init() {
-        this.pixelColorMap = new HashMap<>();
-        this.cacheMap = new HashMap<>();
+        this.pixelColorMap = new ConcurrentHashMap<>();
+        this.cacheMap = new ConcurrentHashMap<>();
         this.minAreaUtil = new MinAreaUtil();
         this.regionBoard = false;
         this.moduleMsg = resourceBundle.getString("exception.msg.module");
@@ -151,6 +152,7 @@ public class OpenCVServiceImpl implements OpenCVService {
     @SuppressWarnings("unchecked")
     @Override
     public Mat filter(Mat mat) throws ModuleException, CvException {
+        MinAreaUtil minAreaUtil=new MinAreaUtil();
         List<ModuleStatus> moduleStatusList = ((List<ModuleStatus>) MODULE_PROFILE_STATUS_LIST.value())
                 .stream()
                 .filter(ModuleStatus::isEnable)
@@ -406,13 +408,15 @@ public class OpenCVServiceImpl implements OpenCVService {
         if ((lowerRightX <= upperLeftX) || (lowerRightY <= upperLeftY)) {
             throw new ModuleException("Invalid region, lower(x,y) less than upper(x,y)");
         }
-        this.upperLeftX = upperLeftX;
-        this.upperLeftY = upperLeftY;
-        this.lowerRightX = lowerRightX;
-        this.lowerRightY = lowerRightY;
-        this.cropWidth = lowerRightX - upperLeftX;
-        this.cropHeight = lowerRightY - upperLeftY;
-        return mat.submat(new Rect(upperLeftX, upperLeftY, cropWidth, cropHeight));
+        synchronized (this){
+            this.upperLeftX = upperLeftX;
+            this.upperLeftY = upperLeftY;
+            this.lowerRightX = lowerRightX;
+            this.lowerRightY = lowerRightY;
+            this.cropWidth = lowerRightX - upperLeftX;
+            this.cropHeight = lowerRightY - upperLeftY;
+            return mat.submat(new Rect(upperLeftX, upperLeftY, cropWidth, cropHeight));
+        }
     }
 
     private void cvtColor(Mat mat, int code) {
