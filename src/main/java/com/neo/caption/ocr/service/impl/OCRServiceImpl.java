@@ -23,7 +23,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.neo.caption.ocr.constant.Dir.TESS_DATA_DIR;
 import static com.neo.caption.ocr.constant.PrefKey.TESS_LANG;
 
-@Service
+//@Service
 @Slf4j
 public class OCRServiceImpl implements OCRService {
 
